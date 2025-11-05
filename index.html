@@ -1,15 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SOGO Manila Tourist Map</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 <style>
-body { margin:0; font-family:Arial; background:#fff; }
-.header { background:#D50000; padding:10px; text-align:center; color:#fff; }
-.header img { height:60px; }
-#map { height: calc(100vh - 90px); width:100%; }
+body{margin:0;font-family:Arial;}
+.header{background:#D50000;color:white;padding:10px;text-align:center;}
+.header img{height:60px;}
+#map{height:calc(100vh - 90px);}
 </style>
 </head>
 <body>
@@ -18,11 +18,27 @@ body { margin:0; font-family:Arial; background:#fff; }
 <b>Manila Tourist & Historical Attractions Map</b>
 </div>
 <div id="map"></div>
-
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
-var map = L.map('map').setView([14.5995, 120.9842], 12);
+var map=L.map('map').setView([14.59,120.98],12);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(map);
+L.marker([14.5955, 120.9732]).addTo(map).bindPopup('Fort Santiago');
+L.marker([14.5896, 120.9753]).addTo(map).bindPopup('San Agustin Church');
+L.marker([14.591, 120.9733]).addTo(map).bindPopup('Manila Cathedral');
+L.marker([14.5894, 120.9751]).addTo(map).bindPopup('Casa Manila');
+L.marker([14.5827, 120.9793]).addTo(map).bindPopup('Rizal Park (Luneta)');
+L.marker([14.5868, 120.981]).addTo(map).bindPopup('National Museum of Fine Arts');
+L.marker([14.5836, 120.9816]).addTo(map).bindPopup('National Museum of Anthropology');
+L.marker([14.5839, 120.9797]).addTo(map).bindPopup('National Museum of Natural History');
+L.marker([14.5793, 120.9747]).addTo(map).bindPopup('Manila Ocean Park');
+L.marker([14.5995, 120.9772]).addTo(map).bindPopup('Binondo Church');
+L.marker([14.5999, 120.9842]).addTo(map).bindPopup('Quiapo Church');
+L.marker([14.5821, 120.9879]).addTo(map).bindPopup('Paco Park');
+L.marker([14.5535, 120.9842]).addTo(map).bindPopup('CCP Complex');
+L.marker([14.5581, 120.9856]).addTo(map).bindPopup('Star City');
+L.marker([14.572, 120.983]).addTo(map).bindPopup('Roxas Boulevard');
+L.marker([14.599, 120.9779]).addTo(map).bindPopup('Escolta');
+L.marker([14.5943, 120.9824]).addTo(map).bindPopup('Arroceros Forest Park');
 </script>
 </body>
 </html>
