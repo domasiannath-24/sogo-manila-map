@@ -1,44 +1,92 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SOGO Manila Tourist Map</title>
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>SOGO — Manila Tourist Map</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"/>
 <style>
-body{margin:0;font-family:Arial;}
-.header{background:#D50000;color:white;padding:10px;text-align:center;}
-.header img{height:60px;}
-#map{height:calc(100vh - 90px);}
+  html,body,#map { height:100%; margin:0; padding:0; }
+  #map { position:fixed; inset:0; top:96px; }
+  .topbar { position:fixed; left:0; right:0; top:0; height:96px; background:#D50000; color:white; display:flex; align-items:center; padding:12px 14px; z-index:1000; box-shadow:0 2px 6px rgba(0,0,0,0.2); }
+  .brand { display:flex; align-items:center; gap:12px; }
+  .brand img { height:64px; }
+  .title { font-size:18px; font-weight:700; }
+  .controls { margin-left:auto; display:flex; gap:8px; align-items:center; }
+  .btn { background:#FFD600; color:#000; border:none; padding:8px 10px; border-radius:6px; font-weight:700; }
+  .legend { position:fixed; right:10px; bottom:10px; background:white; padding:8px 10px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.15); z-index:1000; font-size:13px; }
+  a.small { font-size:12px; color:#333; }
+  .popup-img { max-width:260px; height:auto; display:block; margin-bottom:6px; }
+  @media (min-width:800px) { .title { font-size:20px } .popup-img { max-width:360px } }
 </style>
 </head>
 <body>
-<div class="header">
-<img src="logo.png"><br>
-<b>Manila Tourist & Historical Attractions Map</b>
+<div class="topbar">
+  <div class="brand">
+    <img src="logo.png" alt="SOGO Logo" />
+    <div>
+      <div class="title">SOGO — Manila Tourist Map</div>
+      <div style="font-size:12px;opacity:0.9">Privacy-first • No app install • Works on iPhone & Android</div>
+    </div>
+  </div>
+  <div class="controls">
+    <button id="locateBtn" class="btn">Find Me</button>
+    <a class="btn" id="openMyMaps" target="_blank" rel="noopener">Open My Maps</a>
+  </div>
 </div>
 <div id="map"></div>
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<div class="legend"><strong>Legend</strong><br/><span style="color:#d62b2b">●</span> SOGO Branches · <span style="color:#2b82d6">●</span> Attractions<br/><a class="small" href="https://domasiannath-24.github.io/sogo-manila-map/" target="_blank">Hosted: https://domasiannath-24.github.io/sogo-manila-map/</a></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<script src="https://unpkg.com/leaflet-omnivore@0.3.4/leaflet-omnivore.min.js"></script>
+
 <script>
-var map=L.map('map').setView([14.59,120.98],12);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(map);
-L.marker([14.5955, 120.9732]).addTo(map).bindPopup('Fort Santiago');
-L.marker([14.5896, 120.9753]).addTo(map).bindPopup('San Agustin Church');
-L.marker([14.591, 120.9733]).addTo(map).bindPopup('Manila Cathedral');
-L.marker([14.5894, 120.9751]).addTo(map).bindPopup('Casa Manila');
-L.marker([14.5827, 120.9793]).addTo(map).bindPopup('Rizal Park (Luneta)');
-L.marker([14.5868, 120.981]).addTo(map).bindPopup('National Museum of Fine Arts');
-L.marker([14.5836, 120.9816]).addTo(map).bindPopup('National Museum of Anthropology');
-L.marker([14.5839, 120.9797]).addTo(map).bindPopup('National Museum of Natural History');
-L.marker([14.5793, 120.9747]).addTo(map).bindPopup('Manila Ocean Park');
-L.marker([14.5995, 120.9772]).addTo(map).bindPopup('Binondo Church');
-L.marker([14.5999, 120.9842]).addTo(map).bindPopup('Quiapo Church');
-L.marker([14.5821, 120.9879]).addTo(map).bindPopup('Paco Park');
-L.marker([14.5535, 120.9842]).addTo(map).bindPopup('CCP Complex');
-L.marker([14.5581, 120.9856]).addTo(map).bindPopup('Star City');
-L.marker([14.572, 120.983]).addTo(map).bindPopup('Roxas Boulevard');
-L.marker([14.599, 120.9779]).addTo(map).bindPopup('Escolta');
-L.marker([14.5943, 120.9824]).addTo(map).bindPopup('Arroceros Forest Park');
+const kmlUrl = "https://www.google.com/maps/d/kml?mid=11_1oDpmSF82c-pW6lDbyraJnzRqwFZI&forcekml=1";
+const map = L.map('map', { zoomControl:true }).setView([14.586, 120.977], 12);
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap contributors' }).addTo(map);
+
+const attractionsCluster = L.markerClusterGroup();
+const sogoCluster = L.markerClusterGroup();
+map.addLayer(attractionsCluster);
+map.addLayer(sogoCluster);
+
+function extractImageFromDescription(desc) { if(!desc) return null; const imgMatch = desc.match(/<img[^>]+src="([^">]+)"/i); if(imgMatch) return imgMatch[1]; const urlMatch = desc.match(/(https?:\/\/[^\s"']+\.(?:jpg|jpeg|png|gif))/i); return urlMatch ? urlMatch[1] : null; }
+
+omnivore.kml(kmlUrl)
+  .on('ready', function() {
+    const layer = this.toGeoJSON();
+    layer.features.forEach(function(feature) {
+      const coords = feature.geometry && feature.geometry.coordinates;
+      if(!coords) return;
+      const lon = coords[0], lat = coords[1];
+      const props = feature.properties || {};
+      const title = props.name || props.title || 'Place';
+      const desc = props.description || props.Snippet || '';
+      const img = extractImageFromDescription(desc);
+      // Decide whether it's a SOGO branch by checking name or description for 'Sogo' keyword
+      const isSogo = /sogo/i.test(title+desc);
+      const icon = isSogo ? L.divIcon({className:'sogo-icon', html:'<div style="background:#D50000;color:#fff;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:12px;">S</div>'}) : L.divIcon({className:'attr-icon', html:'<div style="background:#2b82d6;color:#fff;border-radius:50%;width:14px;height:14px;"></div>'});
+      let popupHtml = `<div style="max-width:360px"><strong>${escapeHtml(title)}</strong><br/>`;
+      if(img) popupHtml += `<img src="${img}" class="popup-img" alt="${escapeHtml(title)}">`;
+      let shortDesc = desc.replace(/<br\s*\/?>/ig,'\n').replace(/<[^>]+>/g, '');
+      if(shortDesc) popupHtml += `<div style="font-size:13px;white-space:pre-wrap;">${escapeHtml(shortDesc)}</div>`;
+      popupHtml += `<div style="margin-top:8px"><a target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${lat},${lon}">Open in Google Maps</a></div>`;
+      popupHtml += `</div>`;
+      const marker = L.marker([lat, lon], { icon: icon });
+      marker.bindPopup(popupHtml, { maxWidth: 380 });
+      if(isSogo) sogoCluster.addLayer(marker); else attractionsCluster.addLayer(marker);
+    });
+    try { map.fitBounds(L.featureGroup([sogoCluster, attractionsCluster]).getBounds(), { padding:[40,40] }); } catch(e) { map.setView([14.586,120.977],12); }
+  })
+  .on('error', function(e) { console.error('Error loading KML', e); alert('Failed to load map from Google My Maps. Please ensure the map is public (Anyone with the link can view).'); });
+
+document.getElementById('openMyMaps').addEventListener('click', function() { window.open('https://www.google.com/maps/d/viewer?mid=11_1oDpmSF82c-pW6lDbyraJnzRqwFZI','_blank'); });
+document.getElementById('locateBtn').addEventListener('click', function() { map.locate({setView:true, maxZoom:15}); });
+
+function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>"']/g, function(m) { return {'&': '&amp;','<': '&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; }); }
 </script>
 </body>
 </html>
