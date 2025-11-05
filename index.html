@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SOGO Manila Tourist Map</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<style>
+body { margin:0; font-family:Arial; background:#fff; }
+.header { background:#D50000; padding:10px; text-align:center; color:#fff; }
+.header img { height:60px; }
+#map { height: calc(100vh - 90px); width:100%; }
+</style>
+</head>
+<body>
+<div class="header">
+<img src="logo.png"><br>
+<b>Manila Tourist & Historical Attractions Map</b>
+</div>
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+var map = L.map('map').setView([14.5995, 120.9842], 12);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(map);
+</script>
+</body>
+</html>
